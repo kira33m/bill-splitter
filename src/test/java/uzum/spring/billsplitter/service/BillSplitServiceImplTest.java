@@ -1,21 +1,23 @@
 package uzum.spring.billsplitter.service;
 
-import uzum.spring.billsplitter.dto.request.BillSplitRequest;
-import uzum.spring.billsplitter.dto.request.ItemDto;
-import uzum.spring.billsplitter.dto.request.PersonOrderDto;
-import uzum.spring.billsplitter.dto.response.BillSplitResponse;
-import uzum.spring.billsplitter.dto.response.PersonShareDto;
+import uzum.spring.billsplitter.dto.request.*;
+import uzum.spring.billsplitter.dto.response.*;
 import uzum.spring.billsplitter.service.impl.BillSplitServiceImpl;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.InjectMocks;
 
 import java.math.BigDecimal;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@ExtendWith(MockitoExtension.class)
 class BillSplitServiceImplTest {
 
-    private final BillSplitService service = new BillSplitServiceImpl();
+    @InjectMocks
+    private BillSplitServiceImpl service;
 
     @Test
     void splitBill_calculatesCorrectly() {
