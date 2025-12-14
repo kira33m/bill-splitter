@@ -40,16 +40,16 @@ class BillSplitServiceImplTest {
 
         BillSplitResponseDto response = service.splitBill(request);
 
-        assertEquals(4, response.getShares().size());
+        assertEquals(4, response.shares().size());
 
-        PersonShareDto alice = response.getShares().stream()
-            .filter(s -> s.getName().equals("Alice"))
+        PersonShareDto alice = response.shares().stream()
+            .filter(s -> s.name().equals("Alice"))
             .findFirst()
             .orElseThrow();
 
-        assertEquals(new BigDecimal("300.00"), alice.getPersonalTotal());
-        assertEquals(new BigDecimal("200.00"), alice.getSharedTotal());
-        assertEquals(new BigDecimal("50.00"), alice.getCommission());
-        assertEquals(new BigDecimal("550.00"), alice.getTotalToPay());
+        assertEquals(new BigDecimal("300.00"), alice.personalTotal());
+        assertEquals(new BigDecimal("200.00"), alice.sharedTotal());
+        assertEquals(new BigDecimal("50.00"), alice.commission());
+        assertEquals(new BigDecimal("550.00"), alice.totalToPay());
     }
 }

@@ -1,23 +1,20 @@
 package uzum.spring.billsplitter.dto.request;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.PositiveOrZero;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import jakarta.validation.constraints.*;
+import lombok.Builder;
 
 import java.math.BigDecimal;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class ItemDto {
+@Builder
+public record ItemDto(
 
-    @NotBlank
-    private String name;
+    @NotBlank(message = "Item name cannot be blank")
+    @Size(min = 1, max = 200, message = "Item name must be between 1 and 200 characters")
+    String name,
 
-    @NotNull
-    @PositiveOrZero
-    private BigDecimal price;
+    @NotNull(message = "Item price cannot be null")
+    @DecimalMin(value = "0.0", message = "Item price must be greater than or equal to 0")
+    @Digits(integer = 10, fraction = 2, message = "Item price must have at most 10 integer digits and 2 fractional digits")
+    BigDecimal price
+) {
 }

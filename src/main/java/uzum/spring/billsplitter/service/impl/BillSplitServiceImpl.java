@@ -21,13 +21,13 @@ public class BillSplitServiceImpl implements BillSplitService {
 
     @Override
     public BillSplitResponseDto splitBill(BillSplitRequestDto request) {
-        if (request.getPeople() == null || request.getPeople().isEmpty()) {
+        if (request.people() == null || request.people().isEmpty()) {
             throw new EmptyPeopleListException();
         }
 
-        int peopleCount = request.getPeople().size();
+        int peopleCount = request.people().size();
 
-        BigDecimal sharedTotal = sumItems(request.getSharedItems());
+        BigDecimal sharedTotal = sumItems(request.sharedItems());
         BigDecimal sharedPerPerson = peopleCount > 0
             ? sharedTotal.divide(BigDecimal.valueOf(peopleCount), 2, RoundingMode.HALF_UP)
             : BigDecimal.ZERO;
@@ -36,23 +36,23 @@ public class BillSplitServiceImpl implements BillSplitService {
         BigDecimal totalWithoutCommission = BigDecimal.ZERO;
         BigDecimal totalCommission = BigDecimal.ZERO;
 
-        for (PersonOrderDto person : request.getPeople()) {
-            BigDecimal personalTotal = sumItems(person.getPersonalItems());
+        for (PersonOrderDto person : request.people()) {
+            BigDecimal personalTotal = sumItems(person.personalItems());
             BigDecimal baseTotal = personalTotal.add(sharedPerPerson);
 
             BigDecimal commission = baseTotal
-                .multiply(request.getCommissionPercent())
+                .multiply(request.commissionPercent())
                 .divide(HUNDRED, 2, RoundingMode.HALF_UP);
 
             BigDecimal totalToPay = baseTotal.add(commission);
 
-            shares.add(new PersonShareDto(
-                person.getName(),
-                personalTotal.setScale(2, RoundingMode.HALF_UP),
-                sharedPerPerson,
-                commission,
-                totalToPay
-            ));
+            shares.add(PersonShareDto.builder()
+                .name(person.name())
+                .personalTotal(personalTotal.setScale(2, RoundingMode.HALF_UP))
+                .sharedTotal(sharedPerPerson)
+                .commission(commission)
+                .totalToPay(totalToPay)
+                .build());
 
             totalWithoutCommission = totalWithoutCommission.add(baseTotal);
             totalCommission = totalCommission.add(commission);
@@ -60,12 +60,12 @@ public class BillSplitServiceImpl implements BillSplitService {
 
         BigDecimal totalWithCommission = totalWithoutCommission.add(totalCommission);
 
-        return new BillSplitResponseDto(
-            shares,
-            totalWithoutCommission.setScale(2, RoundingMode.HALF_UP),
-            totalCommission.setScale(2, RoundingMode.HALF_UP),
-            totalWithCommission.setScale(2, RoundingMode.HALF_UP)
-        );
+        return BillSplitResponseDto.builder()
+            .shares(shares)
+            .totalWithoutCommission(totalWithoutCommission.setScale(2, RoundingMode.HALF_UP))
+            .totalCommission(totalCommission.setScale(2, RoundingMode.HALF_UP))
+            .totalWithCommission(totalWithCommission.setScale(2, RoundingMode.HALF_UP))
+            .build();
     }
 
     private BigDecimal sumItems(List<ItemDto> items) {
@@ -73,7 +73,7 @@ public class BillSplitServiceImpl implements BillSplitService {
             return BigDecimal.ZERO;
         }
         return items.stream()
-            .map(ItemDto::getPrice)
+            .map(ItemDto::price)
             .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 }

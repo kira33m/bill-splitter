@@ -3,21 +3,22 @@ package uzum.spring.billsplitter.dto.request;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import jakarta.validation.constraints.Size;
+import lombok.Builder;
 
 import java.util.List;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class PersonOrderDto {
+@Builder
+public record PersonOrderDto(
+    @NotBlank(message = "Person name cannot be blank")
+    @Size(min = 1, max = 100, message = "Person name must be between 1 and 100 characters")
+    String name,
 
-    @NotBlank
-    private String name;
-
-    @NotNull
+    @NotNull(message = "Personal items list cannot be null")
     @Valid
-    private List<ItemDto> personalItems;
+    List<ItemDto> personalItems
+) {
+    public PersonOrderDto {
+        personalItems = personalItems != null ? List.copyOf(personalItems) : null;
+    }
 }

@@ -31,20 +31,20 @@ class BillSplitControllerTest {
 
     @Test
     void splitBill_returnsCalculatedResponse() throws Exception {
-        BillSplitResponseDto mockResponse = new BillSplitResponseDto(
-            List.of(
-                new PersonShareDto(
-                    "Alice",
-                    new BigDecimal("300.00"),
-                    new BigDecimal("200.00"),
-                    new BigDecimal("50.00"),
-                    new BigDecimal("550.00")
-                )
-            ),
-            new BigDecimal("500.00"),
-            new BigDecimal("50.00"),
-            new BigDecimal("550.00")
-        );
+        BillSplitResponseDto mockResponse = BillSplitResponseDto.builder()
+            .shares(List.of(
+                PersonShareDto.builder()
+                    .name("Alice")
+                    .personalTotal(new BigDecimal("300.00"))
+                    .sharedTotal(new BigDecimal("200.00"))
+                    .commission(new BigDecimal("50.00"))
+                    .totalToPay(new BigDecimal("550.00"))
+                    .build()
+            ))
+            .totalWithoutCommission(new BigDecimal("500.00"))
+            .totalCommission(new BigDecimal("50.00"))
+            .totalWithCommission(new BigDecimal("550.00"))
+            .build();
 
         given(billSplitService.splitBill(any())).willReturn(mockResponse);
 
@@ -88,6 +88,77 @@ class BillSplitControllerTest {
         mockMvc.perform(post("/api/bills/split")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(invalidJson))
-            .andExpect(status().isBadRequest());
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.status").value(400))
+            .andExpect(jsonPath("$.message").value("Validation failed"))
+            .andExpect(jsonPath("$.validationErrors").isArray());
+    }
+
+    @Test
+    void splitBill_returnsBadRequest_whenPersonNameIsBlank() throws Exception {
+        String invalidJson = """
+            {
+              "people": [
+                {
+                  "name": "",
+                  "personalItems": []
+                }
+              ],
+              "sharedItems": [],
+              "commissionPercent": 10.0
+            }
+            """;
+
+        mockMvc.perform(post("/api/bills/split")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(invalidJson))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.validationErrors[?(@.field == 'people[0].name')]").exists());
+    }
+
+    @Test
+    void splitBill_returnsBadRequest_whenItemPriceIsNegative() throws Exception {
+        String invalidJson = """
+            {
+              "people": [
+                {
+                  "name": "Alice",
+                  "personalItems": [
+                    { "name": "Burger", "price": -100.00 }
+                  ]
+                }
+              ],
+              "sharedItems": [],
+              "commissionPercent": 10.0
+            }
+            """;
+
+        mockMvc.perform(post("/api/bills/split")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(invalidJson))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.validationErrors[?(@.field == 'people[0].personalItems[0].price')]").exists());
+    }
+
+    @Test
+    void splitBill_returnsBadRequest_whenCommissionPercentExceedsMax() throws Exception {
+        String invalidJson = """
+            {
+              "people": [
+                {
+                  "name": "Alice",
+                  "personalItems": []
+                }
+              ],
+              "sharedItems": [],
+              "commissionPercent": 150.0
+            }
+            """;
+
+        mockMvc.perform(post("/api/bills/split")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(invalidJson))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.validationErrors[?(@.field == 'commissionPercent')]").exists());
     }
 }
