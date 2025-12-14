@@ -21,7 +21,7 @@ class BillSplitServiceImplTest {
 
     @Test
     void splitBill_calculatesCorrectly() {
-        BillSplitRequest request = new BillSplitRequest(
+        BillSplitRequestDto request = new BillSplitRequestDto(
             List.of(
                 new PersonOrderDto("Alice", List.of(
                     new ItemDto("Burger", BigDecimal.valueOf(300))
@@ -38,7 +38,7 @@ class BillSplitServiceImplTest {
             BigDecimal.valueOf(10)
         );
 
-        BillSplitResponse response = service.splitBill(request);
+        BillSplitResponseDto response = service.splitBill(request);
 
         assertEquals(4, response.getShares().size());
 

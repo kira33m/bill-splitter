@@ -1,0 +1,5 @@
+package uzum.spring.billsplitter.constant.enums;
+
+public enum ErrorType {
+    VALIDATION, INTERNAL, EXTERNAL
+}

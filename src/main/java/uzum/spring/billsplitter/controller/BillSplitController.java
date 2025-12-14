@@ -1,7 +1,7 @@
 package uzum.spring.billsplitter.controller;
 
-import uzum.spring.billsplitter.dto.request.BillSplitRequest;
-import uzum.spring.billsplitter.dto.response.BillSplitResponse;
+import uzum.spring.billsplitter.dto.request.BillSplitRequestDto;
+import uzum.spring.billsplitter.dto.response.BillSplitResponseDto;
 import uzum.spring.billsplitter.service.BillSplitService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +15,7 @@ public class BillSplitController {
     private final BillSplitService billSplitService;
 
     @PostMapping("/split")
-    public BillSplitResponse splitBill(@Valid @RequestBody BillSplitRequest request) {
+    public BillSplitResponseDto splitBill(@Valid @RequestBody BillSplitRequestDto request) {
         return billSplitService.splitBill(request);
     }
 }

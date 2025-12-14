@@ -1,6 +1,6 @@
 package uzum.spring.billsplitter.controller;
 
-import uzum.spring.billsplitter.dto.response.BillSplitResponse;
+import uzum.spring.billsplitter.dto.response.BillSplitResponseDto;
 import uzum.spring.billsplitter.dto.response.PersonShareDto;
 import uzum.spring.billsplitter.service.BillSplitService;
 import org.junit.jupiter.api.Test;
@@ -31,7 +31,7 @@ class BillSplitControllerTest {
 
     @Test
     void splitBill_returnsCalculatedResponse() throws Exception {
-        BillSplitResponse mockResponse = new BillSplitResponse(
+        BillSplitResponseDto mockResponse = new BillSplitResponseDto(
             List.of(
                 new PersonShareDto(
                     "Alice",

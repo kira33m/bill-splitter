@@ -1,10 +1,11 @@
 package uzum.spring.billsplitter.service.impl;
 
-import uzum.spring.billsplitter.dto.request.BillSplitRequest;
+import uzum.spring.billsplitter.dto.request.BillSplitRequestDto;
 import uzum.spring.billsplitter.dto.request.ItemDto;
 import uzum.spring.billsplitter.dto.request.PersonOrderDto;
-import uzum.spring.billsplitter.dto.response.BillSplitResponse;
+import uzum.spring.billsplitter.dto.response.BillSplitResponseDto;
 import uzum.spring.billsplitter.dto.response.PersonShareDto;
+import uzum.spring.billsplitter.exception.EmptyPeopleListException;
 import uzum.spring.billsplitter.service.BillSplitService;
 import org.springframework.stereotype.Service;
 
@@ -19,9 +20,9 @@ public class BillSplitServiceImpl implements BillSplitService {
     private static final BigDecimal HUNDRED = BigDecimal.valueOf(100);
 
     @Override
-    public BillSplitResponse splitBill(BillSplitRequest request) {
+    public BillSplitResponseDto splitBill(BillSplitRequestDto request) {
         if (request.getPeople() == null || request.getPeople().isEmpty()) {
-            throw new IllegalArgumentException("List of people must not be empty");
+            throw new EmptyPeopleListException();
         }
 
         int peopleCount = request.getPeople().size();
@@ -59,7 +60,7 @@ public class BillSplitServiceImpl implements BillSplitService {
 
         BigDecimal totalWithCommission = totalWithoutCommission.add(totalCommission);
 
-        return new BillSplitResponse(
+        return new BillSplitResponseDto(
             shares,
             totalWithoutCommission.setScale(2, RoundingMode.HALF_UP),
             totalCommission.setScale(2, RoundingMode.HALF_UP),

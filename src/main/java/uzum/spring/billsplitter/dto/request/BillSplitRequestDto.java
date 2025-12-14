@@ -14,7 +14,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class BillSplitRequest {
+public class BillSplitRequestDto {
 
     @NotEmpty
     @Valid
